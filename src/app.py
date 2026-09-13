@@ -121,17 +121,14 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
                 if obs_data.get("status") == "SUCCESS":
                     if "data" in obs_data:
                         d = obs_data["data"]
-                        final_answer = (
-                            f"Kết quả tra cứu cho sinh viên {obs_data.get('student_id', '')} ({d.get('full_name', '')}): "
-                            f"Lớp {d.get('class', '')}, GPA: {d.get('gpa', '')}, Email: {d.get('email', '')}, "
-                            f"Trạng thái: {d.get('status', '')}, Cố vấn: {d.get('advisor', '')}."
-                        )
+                        # In ra kết quả dạng text thân thiện thay vì hardcode cho sinh viên
+                        final_answer = f"Đã lấy được dữ liệu thành công:\n{json.dumps(d, ensure_ascii=False, indent=2)}"
                     elif "message" in obs_data:
                         final_answer = obs_data["message"]
                     else:
                         final_answer = f"Đã hoàn tất xử lý qua MCP Server: {json.dumps(obs_data, ensure_ascii=False)}"
-                elif obs_data.get("status") == "NOT_FOUND":
-                    final_answer = obs_data.get("message", "Không tìm thấy thông tin sinh viên yêu cầu.")
+                elif obs_data.get("status") in ["NOT_FOUND", "CHANNEL_NOT_FOUND", "ERROR"]:
+                    final_answer = obs_data.get("message", "Đã xảy ra lỗi hoặc không tìm thấy dữ liệu.")
                 else:
                     final_answer = f"Phản hồi từ công cụ: {json.dumps(obs_data, ensure_ascii=False)}"
             

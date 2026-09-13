@@ -1,29 +1,10 @@
 [
   {
     "step": 1,
-    "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
+    "query": "oke v quit giúp toi",
     "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
-  },
-  {
-    "step": 1,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
-    "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
-    "arguments": {
-      "student_id": "SV2026001"
-    },
-    "observation": {},
-    "latency_ms": 799.12
-  },
-  {
-    "step": 2,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
-    "action_type": "FINAL_ANSWER",
-    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
-    "latency_ms": 10.0
+    "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
+    "output": "Chào bạn, \n\nNếu bạn muốn kết thúc cuộc trò chuyện tại đây, mình rất vui được hỗ trợ bạn hôm nay! Chúc bạn một ngày tốt lành.\n\nTrong trường hợp bạn đang muốn thực hiện thủ tục **rút môn học (Withdraw)** hoặc **thôi học (Withdrawal from University)** tại VinUni, bạn vui lòng cho mình biết thêm thông tin chi tiết (hoặc liên hệ trực tiếp với Văn phòng Học vụ - Office of the Registrar) để được hướng dẫn các bước và thủ tục cần thiết nhé!",
+    "latency_ms": 3564.67
   }
 ]

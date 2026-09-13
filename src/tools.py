@@ -11,19 +11,23 @@ from typing import Dict, Any
 # ==============================================================================
 
 TOOLS_SCHEMA = [
-    # Tool 1: Đã được định nghĩa mẫu sẵn cho Học viên tham khảo
+    # Tool 1: Lấy dữ liệu tin nhắn từ discord
     {
-        "name": "academic_query",
-        "description": "Tra cứu hồ sơ và thông tin học vụ của sinh viên VinUni bằng mã sinh viên.",
+        "name": "fetch_discord_messages",
+        "description": "Lấy lịch sử tin nhắn từ một kênh (channel) cụ thể trong server Discord.",
         "parameters": {
             "type": "object",
             "properties": {
-                "student_id": {
+                "channel_name": {
                     "type": "string",
-                    "description": "Mã sinh viên cần tra cứu (ví dụ: 'SV2026001')"
+                    "description": "Tên kênh Discord cần lấy tin nhắn (ví dụ: 'thong-bao-lop-hoc', 'hoidap')"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Số lượng tin nhắn mới nhất cần lấy. Mặc định là 10 nếu không chỉ định."
                 }
             },
-            "required": ["student_id"]
+            "required": ["channel_name"]
         }
     },
     
@@ -37,15 +41,24 @@ TOOLS_SCHEMA = [
     #    - advisor_name (string): Tên cố vấn học tập
     # 3. Khai báo danh sách các trường bắt buộc (required).
     # --------------------------------------------------------------------------
+    
+    # Tool 2: Lưu nội dung ghi chú thành một file
     {
-        "name": "schedule_appointment",
-        "description": "Đặt lịch hẹn tư vấn học vụ với Cố vấn học tập VinUni.",
+        "name": "save_summary_note",
+        "description": "Lưu lại nội dung đã tổng hợp, ghi chú thành một file.",
         "parameters": {
             "type": "object",
             "properties": {
-                # TODO 1.2: Khai báo các thuộc tính tham số cho Tool tại đây...
+                "file_name": {
+                    "type": "string",
+                    "description": "Tên file để lưu (ví dụ: 'tong_hop_hoidap.txt')"
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Nội dung chi tiết cần được ghi chú lại."
+                }
             },
-            "required": [] # TODO 1.2: Khai báo danh sách các trường bắt buộc tại đây...
+            "required": ["file_name", "content"]
         }
     }
 ]
@@ -54,58 +67,63 @@ TOOLS_SCHEMA = [
 # 2. MÔ PHỎNG DỮ LIỆU & HÀM THỰC THI TOOL (EXECUTION LAYER)
 # ==============================================================================
 
-MOCK_DATABASE = {
-    "SV2026001": {
-        "full_name": "Nguyễn Văn An",
-        "class": "AI-K4",
-        "gpa": 3.85,
-        "email": "an.nv@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "PGS.TS Nguyễn Văn A"
-    },
-    "SV2026002": {
-        "full_name": "Trần Thị Bình",
-        "class": "AI-K4",
-        "gpa": 3.60,
-        "email": "binh.tt@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "TS. Lê Thị B"
-    }
+# Cơ sở dữ liệu giả lập (Mock Database) cho Discord
+MOCK_DISCORD_MESSAGES = {
+    "thong-bao-lop-hoc": [
+        {"author": "Admin", "content": "Ngày mai lớp học qua Zoom lúc 8h sáng nhé.", "timestamp": "2026-09-13T08:00:00Z"},
+        {"author": "Labcoachs", "content": "Các bạn nhớ nộp bài tập Day 03 trước 23:59 hôm nay.", "timestamp": "2026-09-13T09:30:00Z"}
+    ],
+    "hoidap": [
+        {"author": "SV01", "content": "Cho em hỏi tool schema là gì ạ?", "timestamp": "2026-09-13T10:00:00Z"},
+        {"author": "Labcoachs", "content": "Là một định dạng JSON mô tả công cụ cho LLM hiểu em nhé.", "timestamp": "2026-09-13T10:15:00Z"}
+    ]
 }
 
 
-def execute_academic_query(student_id: str) -> str:
-    """Thực thi tra cứu học vụ theo mã sinh viên"""
-    student = MOCK_DATABASE.get(student_id.strip().upper())
-    if student:
+def execute_fetch_discord_messages(channel_name: str, limit: int = 10) -> str:
+    """Thực thi giả lập: Lấy tin nhắn từ Discord"""
+    channel = channel_name.strip().replace("#", "")
+    messages = MOCK_DISCORD_MESSAGES.get(channel)
+    
+    if messages:
         return json.dumps({
             "status": "SUCCESS",
-            "student_id": student_id,
-            "data": student
+            "channel": channel,
+            "data": messages[-limit:] # Chỉ lấy số lượng tin nhắn theo limit
         }, ensure_ascii=False)
     else:
         return json.dumps({
-            "status": "NOT_FOUND",
-            "message": f"Không tìm thấy dữ liệu sinh viên có mã '{student_id}'"
+            "status": "CHANNEL_NOT_FOUND",
+            "message": f"Không tìm thấy kênh Discord nào có tên là '{channel}'"
         }, ensure_ascii=False)
 
 
-def execute_schedule_appointment(student_id: str, datetime_str: str, advisor_name: str = "PGS.TS Nguyễn Văn A") -> str:
-    """Thực thi đặt lịch hẹn tư vấn học vụ"""
-    return json.dumps({
-        "status": "SUCCESS",
-        "booking_id": f"BK-{student_id}-99",
-        "student_id": student_id,
-        "datetime": datetime_str,
-        "advisor": advisor_name,
-        "message": f"Đặt lịch thành công cho sinh viên {student_id} với {advisor_name} vào lúc {datetime_str}."
-    }, ensure_ascii=False)
+def execute_save_summary_note(file_name: str, content: str) -> str:
+    """Thực thi giả lập: Lưu nội dung tổng hợp ra file"""
+    import os
+    # Giả lập ghi file vào thư mục docs/ 
+    # (Trong bài Lab thực tế, bạn có thể in ra terminal là được)
+    try:
+        save_path = os.path.join("docs", file_name)
+        with open(save_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        
+        return json.dumps({
+            "status": "SUCCESS",
+            "file_name": file_name,
+            "message": f"Đã lưu thành công nội dung ghi chú vào file '{file_name}'."
+        }, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({
+            "status": "ERROR",
+            "message": f"Lỗi khi ghi file: {str(e)}"
+        }, ensure_ascii=False)
 
 
 # Router gọi tool thực tế
 TOOL_ROUTER = {
-    "academic_query": execute_academic_query,
-    "schedule_appointment": execute_schedule_appointment
+    "fetch_discord_messages": execute_fetch_discord_messages,
+    "save_summary_note": execute_save_summary_note
 }
 
 def dispatch_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:

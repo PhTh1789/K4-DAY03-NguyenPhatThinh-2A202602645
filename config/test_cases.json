@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "baseline_greeting",
+    "question": "Chào trợ lý, bạn có thể giúp tôi làm những việc gì trong server Discord AI Thực Chiến?",
+    "expected_behavior": "Agent chào hỏi và giới thiệu khả năng tra cứu tin nhắn từ các kênh Discord cũng như khả năng tổng hợp và lưu trữ ghi chú, mà KHÔNG gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "out_of_scope_query",
+    "question": "Thời tiết ngày mai ở Hà Nội như thế nào?",
+    "expected_behavior": "Agent từ chối trả lời lịch sự và giải thích rằng hệ thống chỉ chuyên hỗ trợ các tác vụ liên quan đến việc đọc và tổng hợp thông tin từ Discord.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC03",
+    "type": "single_action",
+    "question": "Đọc tin nhắn mới nhất trong kênh #thong-bao-lop-hoc và tóm tắt lại cho tôi.",
+    "expected_behavior": "Agent tự động phát sinh Tool Call để lấy lịch sử tin nhắn trong kênh #thong-bao-lop-hoc, sau đó đọc kết quả và tóm tắt lại thông tin cho người dùng.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Tổng hợp các câu hỏi trong kênh #hoidap rồi lưu vào file các điều cần lưu ý.",
+    "expected_behavior": "Agent  thực hiện chuỗi ReAct đa bước: (1) Gọi Tool để tra cứu thông tin tin nhắn từ kênh #hoidap. (2) Gọi Tool hành động để ghi chú và lưu những thông tin vừa tìm được vào file.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Tổng hợp thông tin từ kênh #fake_channel_khong_ton_tai.",
+    "expected_behavior": "Agent nhận kết quả báo lỗi (vd: CHANNEL_NOT_FOUND) từ Tool tra cứu, sau đó đưa ra phản hồi lịch sự cho người dùng mà không tự bịa đặt thông tin hay cố gắng ghi file.",
+    "complexity": "Medium"
+  }
+]

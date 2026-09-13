@@ -4,7 +4,7 @@ Mô phỏng kiến trúc MCP Server (Client-Server Architecture) cung cấp côn
 """
 
 import json
-import sys
+import sys      
 from typing import Dict, Any, List
 from tools import TOOLS_SCHEMA, dispatch_tool_call
 
@@ -39,7 +39,21 @@ class MCPAcademicServer:
         # 3. Đóng gói phản hồi và trả về Dict theo đúng chuẩn giao thức MCP JSON-RPC 2.0:
         #    - Các trường bắt buộc: "jsonrpc": "2.0", "server": self.server_name, "tool": tool_name, "result": content
         # --------------------------------------------------------------------------
-        return {}
+        
+        # Gọi hàm trung chuyển để thực thi tool
+        result_json_str = dispatch_tool_call(tool_name, arguments)
+        
+        # Chuyển đổi chuỗi thành Dict
+        content = json.loads(result_json_str)
+        
+        # Đóng gói kết quả theo chuẩn MCP (JSON-RPC Dictionary)
+        return {
+            "jsonrpc": "2.0",
+            "server": self.server_name,
+            "tool": tool_name,
+            "result": content
+        }
+
 
 
 if __name__ == "__main__":
